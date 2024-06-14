@@ -1,4 +1,7 @@
 package com.isa.PrivateClinicContracts.repository;
 
-public interface CompanyRepository {
+import com.isa.PrivateClinicContracts.model.Company;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CompanyRepository extends JpaRepository<Company, Long> {
 }

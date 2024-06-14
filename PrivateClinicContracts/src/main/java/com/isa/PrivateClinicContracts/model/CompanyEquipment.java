@@ -4,12 +4,14 @@ import com.isa.PrivateClinicContracts.baseentity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
+@Data
 @Table(name = "company_equipment",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"company_id", "equipment_id"})})
 public class CompanyEquipment extends BaseEntity {

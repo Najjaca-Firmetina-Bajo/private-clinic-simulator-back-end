@@ -4,6 +4,7 @@ import com.isa.PrivateClinicContracts.baseentity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class Equipment extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String name;
@@ -23,5 +25,5 @@ public class Equipment extends BaseEntity {
     @Column(nullable = false)
     private double price;
     @OneToMany(mappedBy = "equipment", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<CompanyEquipment> companyEquipmentList;
+    private List<CompanyEquipment> equipments;
 }
