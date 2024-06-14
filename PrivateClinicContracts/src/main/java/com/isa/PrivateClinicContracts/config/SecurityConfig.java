@@ -39,6 +39,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "http://localhost:4200/**",
             "/api/auth/**",
+            "/api/companies/**",
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
