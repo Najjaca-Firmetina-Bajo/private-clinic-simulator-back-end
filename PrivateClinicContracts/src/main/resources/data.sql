@@ -1,7 +1,7 @@
-INSERT INTO users (email, password, role)
+INSERT INTO users (id, email, password, role)
 VALUES
-    ('sk1@gmail.com', '$2a$10$h9fD5LSSJ/cxG6pysikeOes5ANhA05FDyYi1tiw0mlSEYk8AKQC12', 'USER'), --password 123
-    ('li3@gmail.com', '$2a$10$h9fD5LSSJ/cxG6pysikeOes5ANhA05FDyYi1tiw0mlSEYk8AKQC12', 'USER');
+    (1001, 'sk1@gmail.com', '$2a$10$h9fD5LSSJ/cxG6pysikeOes5ANhA05FDyYi1tiw0mlSEYk8AKQC12', 'USER'), --password 123
+    (1003, 'li3@gmail.com', '$2a$10$h9fD5LSSJ/cxG6pysikeOes5ANhA05FDyYi1tiw0mlSEYk8AKQC12', 'USER');
 INSERT INTO public.companies(
     averagerating, id, address, name, description)
 VALUES (3.6, 1001, 'Balzakova-12-Novi Sad-Srbija-19.8370215718-45.2426030118', 'Apoteka Zdravlje', 'Duga tradicija');

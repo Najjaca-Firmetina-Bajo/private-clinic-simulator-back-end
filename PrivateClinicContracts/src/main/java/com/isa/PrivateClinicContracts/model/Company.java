@@ -27,4 +27,6 @@ public class Company extends BaseEntity {
     private double averageRating;
     @OneToMany(mappedBy = "company", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<CompanyEquipment> companyEquipmentList;
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Contract> contracts;
 }

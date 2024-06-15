@@ -18,7 +18,7 @@ import java.util.List;
 public class CompanyController {
     private final CompanyService companyService;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<List<CompanyDto>> getAll() {
         return ResponseEntity.ok(companyService.getAll());
     }
