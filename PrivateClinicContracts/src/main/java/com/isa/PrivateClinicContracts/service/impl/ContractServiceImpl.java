@@ -12,6 +12,8 @@ import com.isa.PrivateClinicContracts.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ContractServiceImpl implements ContractService {
@@ -26,15 +28,27 @@ public class ContractServiceImpl implements ContractService {
         User user = userRepository.findById(contractDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        Contract contract = Contract.builder()
+        Contract newContract = Contract.builder()
                 .user(user)
                 .company(company)
                 .equipmentId(contractDto.getEquipmentId())
                 .quantity(contractDto.getQuantity())
                 .pickupDate(contractDto.getPickupDate())
-                .status(ContractStatus.CREATED)
+                .status(ContractStatus.VALID)
                 .build();
 
-        contractRepository.save(contract);
+        Optional<Contract> existingContractOptional = contractRepository.findByUserIdAndCompanyIdAndStatus(
+                user.getId(),
+                company.getId(),
+                ContractStatus.VALID
+        );
+
+        if (existingContractOptional.isPresent()) {
+            Contract existingContract = existingContractOptional.get();
+            existingContract.setStatus(ContractStatus.INVALID);
+            contractRepository.save(existingContract);
+        }
+
+        contractRepository.save(newContract);
     }
 }
