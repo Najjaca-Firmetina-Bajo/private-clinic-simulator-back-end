@@ -1,5 +1,6 @@
 package com.isa.PrivateClinicContracts.service.impl;
 
+import com.isa.PrivateClinicContracts.config.RabbitMQConfig;
 import com.isa.PrivateClinicContracts.dto.ContractDto;
 import com.isa.PrivateClinicContracts.model.Company;
 import com.isa.PrivateClinicContracts.model.Contract;
@@ -10,6 +11,7 @@ import com.isa.PrivateClinicContracts.repository.ContractRepository;
 import com.isa.PrivateClinicContracts.repository.UserRepository;
 import com.isa.PrivateClinicContracts.service.ContractService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,6 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ContractServiceImpl implements ContractService {
+    private final RabbitTemplate rabbitTemplate;
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
@@ -50,5 +53,6 @@ public class ContractServiceImpl implements ContractService {
         }
 
         contractRepository.save(newContract);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, contractDto);
     }
 }
