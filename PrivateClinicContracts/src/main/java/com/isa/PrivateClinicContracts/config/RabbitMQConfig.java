@@ -9,6 +9,6 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue contractQueue() {
-        return new Queue(QUEUE_NAME, false);
+        return new Queue(QUEUE_NAME, true);
     }
 }
