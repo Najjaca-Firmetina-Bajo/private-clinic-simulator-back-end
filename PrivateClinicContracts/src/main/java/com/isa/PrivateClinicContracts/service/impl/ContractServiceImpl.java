@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -31,7 +33,10 @@ public class ContractServiceImpl implements ContractService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private final CacheManager cacheManager;
+
     @Override
+    @CachePut(value = "contractDto", key = "#contractDto.userId")
     public void create(ContractDto contractDto) throws JsonProcessingException {
         Company company = companyRepository.findById(contractDto.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found"));
@@ -59,9 +64,16 @@ public class ContractServiceImpl implements ContractService {
             contractRepository.save(existingContract);
         }
 
-        contractRepository.save(newContract);
+        Contract savedContract = contractRepository.save(newContract);
+
         String contractDtoJson = objectMapper.writeValueAsString(contractDto);
+        addToCache(savedContract.getId(), contractDtoJson);
         rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, contractDtoJson);
+    }
+
+
+    private void addToCache(Long id, String savedContract) {
+        cacheManager.getCache("contractDto").put(id, savedContract);
     }
 
     @RabbitListener(queues = RabbitMQConfig.DELIVER_QUEUE_NAME)
