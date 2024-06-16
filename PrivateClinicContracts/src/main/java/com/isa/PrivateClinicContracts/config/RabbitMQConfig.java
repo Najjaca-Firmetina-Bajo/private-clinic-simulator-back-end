@@ -24,7 +24,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue expireContractQueue() {
+    public Queue cancelContractQueue() {
         return new Queue(CANCEL_QUEUE_NAME, true);
     }
 }
