@@ -13,6 +13,7 @@ import com.isa.PrivateClinicContracts.repository.ContractRepository;
 import com.isa.PrivateClinicContracts.repository.UserRepository;
 import com.isa.PrivateClinicContracts.service.ContractService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,4 +63,45 @@ public class ContractServiceImpl implements ContractService {
         String contractDtoJson = objectMapper.writeValueAsString(contractDto);
         rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, contractDtoJson);
     }
+
+    @RabbitListener(queues = RabbitMQConfig.DELIVER_QUEUE_NAME)
+    public void deliver(long id) {
+        Contract contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) {
+            return;
+        }
+
+        if (contract.getStatus().equals(ContractStatus.VALID)) {
+            contract.setStatus(ContractStatus.DELIVERED);
+            contractRepository.save(contract);
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.EXPIRE_QUEUE_NAME)
+    public void expire(long id) {
+        Contract contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) {
+            return;
+        }
+
+        if (contract.getStatus().equals(ContractStatus.VALID)) {
+            contract.setStatus(ContractStatus.EXPIRED);
+            contractRepository.save(contract);
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.CANCEL_QUEUE_NAME)
+    public void cancel(long id) {
+        Contract contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) {
+            return;
+        }
+
+        if (contract.getStatus().equals(ContractStatus.VALID)) {
+            contract.setStatus(ContractStatus.CANCELLED);
+            contractRepository.save(contract);
+        }
+    }
+
+
 }

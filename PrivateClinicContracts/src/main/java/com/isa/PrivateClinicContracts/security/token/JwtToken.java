@@ -17,27 +17,30 @@ import lombok.NoArgsConstructor;
 public class JwtToken {
 
   @Id
-  @GeneratedValue
-  public Integer id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-  @Column(unique = true)
-  public String token;
+  @Column(unique = true, nullable = false)
+  private String token;
 
   @Enumerated(EnumType.STRING)
-  public TokenType tokenType = TokenType.BEARER;
+  @Column(nullable = false)
+  private TokenType tokenType = TokenType.BEARER;
 
-  public boolean revoked;
+  @Column(nullable = false)
+  private boolean revoked;
 
-  public boolean expired;
+  @Column(nullable = false)
+  private boolean expired;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "user_id", nullable = false)
   @JsonBackReference
-  public User user;
+  private User user;
 
   @Override
   public String toString() {
-    return "Token{" +
+    return "JwtToken{" +
             "id=" + id +
             ", token='" + token + '\'' +
             ", tokenType=" + tokenType +
