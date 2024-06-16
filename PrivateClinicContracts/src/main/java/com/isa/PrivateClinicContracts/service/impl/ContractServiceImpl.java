@@ -1,5 +1,7 @@
 package com.isa.PrivateClinicContracts.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isa.PrivateClinicContracts.config.RabbitMQConfig;
 import com.isa.PrivateClinicContracts.dto.ContractDto;
 import com.isa.PrivateClinicContracts.model.Company;
@@ -11,7 +13,9 @@ import com.isa.PrivateClinicContracts.repository.ContractRepository;
 import com.isa.PrivateClinicContracts.repository.UserRepository;
 import com.isa.PrivateClinicContracts.service.ContractService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,8 +28,11 @@ public class ContractServiceImpl implements ContractService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
-    public void create(ContractDto contractDto) {
+    public void create(ContractDto contractDto) throws JsonProcessingException {
         Company company = companyRepository.findById(contractDto.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found"));
         User user = userRepository.findById(contractDto.getUserId())
@@ -53,6 +60,48 @@ public class ContractServiceImpl implements ContractService {
         }
 
         contractRepository.save(newContract);
-        rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, contractDto);
+        String contractDtoJson = objectMapper.writeValueAsString(contractDto);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, contractDtoJson);
     }
+
+    @RabbitListener(queues = RabbitMQConfig.DELIVER_QUEUE_NAME)
+    public void deliver(long id) {
+        Contract contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) {
+            return;
+        }
+
+        if (contract.getStatus().equals(ContractStatus.VALID)) {
+            contract.setStatus(ContractStatus.DELIVERED);
+            contractRepository.save(contract);
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.EXPIRE_QUEUE_NAME)
+    public void expire(long id) {
+        Contract contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) {
+            return;
+        }
+
+        if (contract.getStatus().equals(ContractStatus.VALID)) {
+            contract.setStatus(ContractStatus.EXPIRED);
+            contractRepository.save(contract);
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.CANCEL_QUEUE_NAME)
+    public void cancel(long id) {
+        Contract contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) {
+            return;
+        }
+
+        if (contract.getStatus().equals(ContractStatus.VALID)) {
+            contract.setStatus(ContractStatus.CANCELLED);
+            contractRepository.save(contract);
+        }
+    }
+
+
 }

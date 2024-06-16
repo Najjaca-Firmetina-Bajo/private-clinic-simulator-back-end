@@ -1,5 +1,6 @@
 package com.isa.PrivateClinicContracts.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.isa.PrivateClinicContracts.dto.ContractDto;
 import com.isa.PrivateClinicContracts.service.ContractService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class ContractController {
     private final ContractService contractService;
 
     @PostMapping("")
-    public ResponseEntity<Void> create(@RequestBody ContractDto contractDto) {
+    public ResponseEntity<Void> create(@RequestBody ContractDto contractDto) throws JsonProcessingException {
         contractService.create(contractDto);
         return ResponseEntity.ok().build();
     }

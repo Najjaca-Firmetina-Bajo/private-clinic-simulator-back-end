@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContractDto implements Serializable {
+public class ContractDto {
     @Schema(description = "User ID")
     private long userId;
     @Schema(description = "Company ID")
